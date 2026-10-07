@@ -8,19 +8,20 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- React & ReactDOM -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- React, ReactDOM, and Babel from reliable CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin="anonymous"></script>
 
   <style>
     body {
       -webkit-tap-highlight-color: transparent;
-      background-color: #0f172a; /* tailwind slate-900 */
-      color: #f8fafc; /* tailwind slate-50 */
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     @keyframes popIn {
-      0% { transform: scale(0.95); opacity: 0; }
+      0% { transform: scale(0.96); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
     .animate-pop-in {
@@ -28,14 +29,19 @@
     }
     html {
       scroll-behavior: smooth;
-      scroll-padding-top: 120px; 
+      scroll-padding-top: 130px; 
+    }
+    ::selection {
+      background-color: #38bdf8;
+      color: #0f172a;
     }
   </style>
 </head>
-<body class="font-sans antialiased">
+<body class="antialiased min-h-screen">
   <div id="root">
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: white;">
-      <h2>Loading Application... (Please ensure you have internet access for the first load)</h2>
+    <div class="flex flex-col items-center justify-center min-h-screen text-slate-300">
+      <div class="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-lg font-medium">Loading Talk Rehearsal...</p>
     </div>
   </div>
 
@@ -43,18 +49,71 @@
     const { useState, useEffect, useRef } = React;
 
     // --- ICONS ---
-    const Lightbulb = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>;
-    const CheckCircle2 = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
-    const ChevronRight = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>;
-    const BookOpen = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
-    const Play = ({className, fill}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
-    const Pause = ({className, fill}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
-    const RotateCcw = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>;
-    const MessageCircle = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>;
-    const FileText = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>;
-    const Network = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>;
+    const Lightbulb = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"/>
+        <path d="M9 18h6"/><path d="M10 22h4"/>
+      </svg>
+    );
 
-    // --- OUTLINE DATA (15-Minute Part Structure) ---
+    const CheckCircle2 = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    );
+
+    const ChevronRight = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    );
+
+    const BookOpen = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    );
+
+    const Play = ({className, fill}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+    );
+
+    const Pause = ({className, fill}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+      </svg>
+    );
+
+    const RotateCcw = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="1 4 1 10 7 10"/>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+      </svg>
+    );
+
+    const MessageCircle = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+      </svg>
+    );
+
+    const FileText = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+      </svg>
+    );
+
+    const Network = ({className}) => (
+      <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/>
+      </svg>
+    );
+
     const outlineData = [
       {
         id: 'intro',
@@ -64,22 +123,66 @@
         textColor: 'text-cyan-400',
         borderColor: 'border-cyan-700/50',
         cards: [
-          { id: 'i1', trigger: 'Hook: Speed Reading the Bible', details: ['Speed read through the Bible, and Jehovah’s concern for widows, orphans, and foreign residents pops right out.', 'It is truly amazing how often this theme recurs!'] },
-          { id: 'i2', trigger: 'High Note Scripture: Psalm 68:5 (NWT Study Ed)', details: ['*"A father of the fatherless and a protector of widows is God in his holy dwelling."*', 'Slow down from speed reading to look closely at *how* He interacts with them.'] },
-          { id: 'i3', trigger: 'Audience Research Question', details: ['*"Using research tools available in your language, find one or two accounts involving widows in the Bible. What do these narratives teach you about how Jehovah views and cares for widows?"*'] }
+          { 
+            id: 'i1', 
+            trigger: 'Hook: Speed Reading the Bible', 
+            details: [
+              'Speed read through the Bible (e.g. under 6 months), and Jehovah’s concern for widows, orphans, and foreign residents pops right out.', 
+              'It is truly amazing how often and consistently this theme recurs!'
+            ] 
+          },
+          { 
+            id: 'i2', 
+            trigger: 'High Note Scripture: Psalm 68:5 (NWT Study Edition)', 
+            details: [
+              '*"A father of the fatherless and a protector of widows is God in his holy dwelling."*', 
+              'Slow down from speed reading to look closely at *how* He actually interacts with them.'
+            ] 
+          },
+          { 
+            id: 'i3', 
+            trigger: 'Audience Research Question', 
+            details: [
+              '*"Using research tools available in your language, find one or two accounts involving widows in the Bible. What do these narratives teach you about how Jehovah views and cares for widows?"*',
+              'Pause, give friends time to open JW Library, and field thoughtful comments.'
+            ] 
+          }
         ]
       },
       {
         id: 'accounts',
-        sectionTitle: 'II. BIBLICAL ACCOUNTS & AUDIENCE SHARING (4 min)',
+        sectionTitle: 'II. BIBLICAL ACCOUNTS & SCRIPTURAL INSIGHTS (4 min)',
         themeColor: 'from-amber-600 to-orange-600',
         lightBg: 'bg-slate-800',
         textColor: 'text-amber-400',
         borderColor: 'border-amber-700/50',
         cards: [
-          { id: 'a1', trigger: 'Account 1: The Widow of Zarephath (1 Kings 17)', details: ['Destitute foreign widow gathering sticks to starve with her son.', 'Jehovah pinpointed her exact need, sustained her flour/oil, and resurrected her son.', 'Teaches: Jehovah notices the invisible, rewards faith over status, and acts as a fierce protector.'] },
-          { id: 'a2', trigger: 'Account 2: The Needy Widow at the Temple (Luke 21 / Mark 12)', details: ['Dropped two small coins (leptons)—all she had to live on.', 'Jesus elevated her as the ultimate example of devotion.', 'Teaches: Jehovah measures sacrifice, not size, and treasures quiet private devotion.'] },
-          { id: 'a3', trigger: 'Contrast: Luke 18:6-7 (Unrighteous Judge)', details: ['*"Certainly, then, will not God cause justice to be done for his chosen ones who cry out to him day and night..."*', 'Argument from lesser to greater: If a corrupt judge caves, how much more our loving Heavenly Father who is eager, not reluctant!'] }
+          { 
+            id: 'a1', 
+            trigger: 'Account 1: The Widow of Zarephath (1 Kings 17)', 
+            details: [
+              'Destitute foreign widow gathering sticks to prepare her final meal with her son before starving.', 
+              'Jehovah pinpointed her exact need, miraculously sustained her flour and oil, and later resurrected her son.', 
+              'Teaches: Jehovah notices the invisible, rewards faith over social status, and acts as a fierce protector.'
+            ] 
+          },
+          { 
+            id: 'a2', 
+            trigger: 'Account 2: The Needy Widow at the Temple (Luke 21 / Mark 12)', 
+            details: [
+              'Dropped in two small coins (leptons)—literally all she had to live on.', 
+              'Jesus elevated her as the ultimate example of generosity and whole-souled devotion.', 
+              'Teaches: Jehovah measures sacrifice, not monetary size; He treasures quiet, heartfelt devotion.'
+            ] 
+          },
+          { 
+            id: 'a3', 
+            trigger: 'Contrast: Luke 18:6-7 (The Persistent Widow & Unrighteous Judge)', 
+            details: [
+              '*"Hear what the judge, although unrighteous, said! Certainly, then, will not God cause justice to be done for his chosen ones who cry out to him day and night..."*', 
+              'Argument from lesser to greater: If a corrupt judge eventually acts, how much more so our loving Heavenly Father who is eager—not reluctant—to care for His people!'
+            ] 
+          }
         ]
       },
       {
@@ -90,9 +193,29 @@
         textColor: 'text-emerald-400',
         borderColor: 'border-emerald-700/50',
         cards: [
-          { id: 'w1', trigger: 'Reading from Workbook', details: ['*"If you are a widow, be assured that Jehovah understands your deepest feelings and needs. He will protect and support you, just as he has done for many in the past and continues to do today."*', 'Pause for effect...'] },
-          { id: 'w2', trigger: 'Definitive Statement', details: ['*"Jehovah really does care for widows."*', 'Direct transition into the video segment.'] },
-          { id: 'w3', trigger: 'Video Viewing Prompt', details: ['*"While we watch the following video, notice how Jehovah cares for widows today, and think about how we as individuals and as a congregation can show honor to widows today."*'] }
+          { 
+            id: 'w1', 
+            trigger: 'Reading from the Workbook Directly', 
+            details: [
+              '*"If you are a widow, be assured that Jehovah understands your deepest feelings and needs. He will protect and support you, just as he has done for many in the past and continues to do today."*'
+            ] 
+          },
+          { 
+            id: 'w2', 
+            trigger: 'Pause for Effect & Definitive Statement', 
+            details: [
+              'Pause deliberately to let the comfort settle in the congregation.',
+              '*"Jehovah really does care for widows."*'
+            ] 
+          },
+          { 
+            id: 'w3', 
+            trigger: 'Video Viewing Prompt', 
+            details: [
+              '*"While we watch the following video, notice how Jehovah cares for widows today, and think about how we as individuals and as a congregation can show honor to widows today."*',
+              'Direct transition to play the scheduled video.'
+            ] 
+          }
         ]
       },
       {
@@ -103,25 +226,51 @@
         textColor: 'text-violet-400',
         borderColor: 'border-violet-700/50',
         cards: [
-          { id: 'd1', trigger: 'Assigned Question 1', details: ['*"What did you learn from this video about how Jehovah cares for widows today?"*', 'Field audience comments on tangible modern-day provisions.'] },
-          { id: 'd2', trigger: 'Assigned Question 2', details: ['*"Showing honor and support to widows is an important aspect of our worship. (Jas 1:27; 'Give consideration to' study note on 1Ti 5:3, nwtsty). How can we show honor to widows today?"*', 'Discuss practical actions in the congregation.'] }
+          { 
+            id: 'd1', 
+            trigger: 'Assigned Question 1: Modern Care', 
+            details: [
+              '*"What did you learn from this video about how Jehovah cares for widows today?"*', 
+              'Field comments on spiritual encouragement, practical assistance, and tangible comfort.'
+            ] 
+          },
+          { 
+            id: 'd2', 
+            trigger: 'Assigned Question 2: Showing Honor', 
+            details: [
+              '*"Showing honor and support to widows is an important aspect of our worship. (Jas 1:27; \'Give consideration to\' study note on 1Ti 5:3, nwtsty). How can we show honor to widows today?"*', 
+              'Field practical actions: regular association, helping with practical tasks, listening ears, and inclusion.'
+            ] 
+          }
         ]
       },
       {
         id: 'concl',
-        sectionTitle: 'V. CONCLUSION (2 min)',
+        sectionTitle: 'V. CONCLUSION & CALL TO ACTION (2 min)',
         themeColor: 'from-rose-600 to-pink-600',
         lightBg: 'bg-slate-800',
         textColor: 'text-rose-400',
         borderColor: 'border-rose-700/50',
         cards: [
-          { id: 'c1', trigger: 'Summary of Theme', details: ['From Zarephath to today, Psalm 68:5 remains true: God is a protector of widows.'] },
-          { id: 'c2', trigger: 'Call to Action: Being His Hands', details: ['Jehovah uses us to provide protection and care. When we offer our time and respect, we reflect His heart.', 'Proving by our actions that Jehovah really does care for widows.'] }
+          { 
+            id: 'c1', 
+            trigger: 'Summary: An Enduring Truth', 
+            details: [
+              'From Zarephath to the temple, and to our sisters today, Psalm 68:5 remains true: God is a protector of widows.'
+            ] 
+          },
+          { 
+            id: 'c2', 
+            trigger: 'Call to Action: Being His Hands', 
+            details: [
+              'Jehovah frequently uses us to provide that protection and care.',
+              'When we give time and respect, we reflect our Father’s heart—proving by our actions that Jehovah really does care for widows.'
+            ] 
+          }
         ]
       }
     ];
 
-    // --- COMPONENTS ---
     const FlashcardBubble = ({ card, textColor, borderColor, lightBg, onJumpToScript }) => {
       const [isPopped, setIsPopped] = useState(false);
       const [isPressing, setIsPressing] = useState(false);
@@ -134,9 +283,9 @@
         pressTimer.current = setTimeout(() => {
           hasLongPressed.current = true;
           setIsPressing(false);
-          if(navigator.vibrate) navigator.vibrate(50);
+          if (navigator.vibrate) navigator.vibrate(50);
           onJumpToScript(card.id);
-        }, 1200);
+        }, 1100);
       };
 
       const cancelPress = () => {
@@ -149,10 +298,12 @@
         setIsPopped(!isPopped);
       };
 
-      const holdStyles = isPressing ? 'scale-95 opacity-80 ring-4 ring-slate-500 transition-all duration-300' : 'transition-all duration-200 hover:-translate-y-1';
+      const holdStyles = isPressing 
+        ? 'scale-95 opacity-80 ring-4 ring-cyan-500/60 transition-all duration-300' 
+        : 'transition-all duration-200 hover:-translate-y-0.5';
 
       return (
-        <div className="w-full flex justify-center relative my-3 group">
+        <div className="w-full flex justify-center relative my-2.5">
           {!isPopped ? (
             <div 
               onMouseDown={startPress}
@@ -164,16 +315,15 @@
               onContextMenu={(e) => e.preventDefault()}
               onClick={handleClick}
               className={`
-                cursor-pointer inline-flex items-center space-x-3 px-6 py-4 rounded-full
+                cursor-pointer inline-flex items-center space-x-3 px-6 py-3.5 rounded-full
                 ${lightBg} border-2 ${borderColor} shadow-lg 
-                active:scale-95 select-none
-                ${holdStyles}
+                active:scale-95 select-none ${holdStyles}
               `}
             >
-              <div className="p-2 rounded-full bg-slate-900/50">
+              <div className="p-1.5 rounded-full bg-slate-900/60">
                 <MessageCircle className={`w-5 h-5 ${textColor}`} />
               </div>
-              <span className={`font-semibold text-lg ${textColor} max-w-sm truncate sm:max-w-none`}>
+              <span className={`font-semibold text-base sm:text-lg ${textColor} max-w-sm sm:max-w-none text-left`}>
                 {card.trigger}
               </span>
             </div>
@@ -188,23 +338,22 @@
               onContextMenu={(e) => e.preventDefault()}
               onClick={handleClick}
               className={`
-              animate-pop-in cursor-pointer
-              w-full max-w-2xl bg-slate-800 rounded-2xl shadow-2xl border-2 ${borderColor} p-6 relative overflow-hidden select-none
-              ${holdStyles}
-            `}>
-              <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl -mr-10 -mt-10 opacity-30 pointer-events-none`}></div>
-              
-              <div className="flex justify-between items-start mb-5 relative z-10">
-                <div className="flex items-start space-x-3 pr-8">
-                   <Lightbulb className={`w-6 h-6 mt-1 flex-shrink-0 ${textColor}`} />
-                   <h3 className={`font-bold text-xl leading-tight ${textColor}`}>{card.trigger}</h3>
+                animate-pop-in cursor-pointer
+                w-full max-w-2xl bg-slate-800/95 rounded-2xl shadow-2xl border-2 ${borderColor} p-6 relative overflow-hidden select-none
+                ${holdStyles}
+              `}
+            >
+              <div className="flex items-start justify-between mb-4 relative z-10">
+                <div className="flex items-start space-x-3">
+                  <Lightbulb className={`w-6 h-6 mt-1 flex-shrink-0 ${textColor}`} />
+                  <h3 className={`font-bold text-lg sm:text-xl leading-snug ${textColor}`}>{card.trigger}</h3>
                 </div>
               </div>
               
-              <ul className="space-y-4 relative z-10">
+              <ul className="space-y-3 relative z-10">
                 {card.details.map((detail, idx) => (
-                  <li key={idx} className="flex items-start text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
-                    <ChevronRight className={`w-6 h-6 mt-0.5 mr-3 flex-shrink-0 ${textColor} opacity-60`} />
+                  <li key={idx} className="flex items-start text-slate-200 text-base sm:text-lg font-normal leading-relaxed">
+                    <ChevronRight className={`w-5 h-5 mt-1 mr-2.5 flex-shrink-0 ${textColor} opacity-70`} />
                     <span>
                       {detail.split('*').map((chunk, i) => i % 2 !== 0 ? <strong key={i} className="text-white italic">{chunk}</strong> : chunk)}
                     </span>
@@ -212,14 +361,13 @@
                 ))}
               </ul>
               
-              <div className="mt-8 flex justify-between items-center relative z-10 border-t border-slate-700/50 pt-4">
-                 <div className="text-xs text-slate-500 flex items-center">
-                    <FileText className="w-3 h-3 mr-1"/> Hold for Script
-                 </div>
-                 <div className="flex items-center text-sm font-medium text-slate-400 opacity-80">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Tap to close
-                 </div>
+              <div className="mt-6 flex justify-between items-center relative z-10 border-t border-slate-700/60 pt-3">
+                <div className="text-xs text-slate-400 flex items-center">
+                  <FileText className="w-3.5 h-3.5 mr-1 text-slate-400"/> Hold to open in script
+                </div>
+                <div className="flex items-center text-xs sm:text-sm font-medium text-slate-400">
+                  <CheckCircle2 className="w-4 h-4 mr-1 text-slate-400" /> Tap card to close
+                </div>
               </div>
             </div>
           )}
@@ -228,13 +376,12 @@
     };
 
     const PresentationTimer = () => {
-      // 15 MINUTES TOTAL
-      const TOTAL_SECONDS = 15 * 60;
+      const TOTAL_SECONDS = 15 * 60; // 15-minute congregation part
       const [seconds, setSeconds] = useState(TOTAL_SECONDS);
       const [isRunning, setIsRunning] = useState(false);
 
       useEffect(() => {
-        let interval;
+        let interval = null;
         if (isRunning && seconds > 0) {
           interval = setInterval(() => setSeconds(s => s - 1), 1000);
         }
@@ -249,20 +396,31 @@
 
       const toggle = () => setIsRunning(!isRunning);
       const reset = () => { setIsRunning(false); setSeconds(TOTAL_SECONDS); };
-      const isLowTime = seconds < (3 * 60); // Turns red under 3 mins
+      const isLowTime = seconds < (3 * 60); // Low time threshold at 3 minutes
 
       return (
-        <div className="bg-slate-800 border border-slate-700 text-white rounded-full shadow-lg px-4 py-2 sm:px-6 sm:py-3 flex items-center space-x-4 sm:space-x-6">
-          <div className={`text-xl sm:text-3xl font-black tabular-nums tracking-tight ${isLowTime ? 'text-rose-400' : 'text-slate-100'}`}>
-            {formatTime(seconds)}
+        <div className="bg-slate-800/90 border border-slate-700 text-white rounded-full shadow-lg px-3.5 py-1.5 sm:px-5 sm:py-2.5 flex items-center space-x-3 sm:space-x-5">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider hidden md:inline">Timer</span>
+            <div className={`text-xl sm:text-2xl font-black tabular-nums tracking-tight ${isLowTime ? 'text-rose-400 animate-pulse' : 'text-slate-100'}`}>
+              {formatTime(seconds)}
+            </div>
           </div>
           
-          <div className="flex items-center space-x-1 sm:space-x-2 border-l border-slate-600 pl-4 sm:pl-6">
-            <button onClick={toggle} className="p-2 sm:p-3 bg-slate-700 text-slate-100 rounded-full hover:scale-105 hover:bg-slate-600 transition-all">
-              {isRunning ? <Pause className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" /> : <Play className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" />}
+          <div className="flex items-center space-x-1 sm:space-x-2 border-l border-slate-700 pl-3 sm:pl-4">
+            <button 
+              onClick={toggle} 
+              title={isRunning ? "Pause timer" : "Start timer"}
+              className="p-1.5 sm:p-2 bg-slate-700 text-slate-100 rounded-full hover:bg-slate-600 transition-all active:scale-95"
+            >
+              {isRunning ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4" fill="currentColor" />}
             </button>
-            <button onClick={reset} className="p-2 sm:p-3 text-slate-400 hover:text-white rounded-full transition-colors">
-              <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
+            <button 
+              onClick={reset} 
+              title="Reset timer to 15:00"
+              className="p-1.5 sm:p-2 text-slate-400 hover:text-white rounded-full transition-colors active:scale-95"
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -271,99 +429,101 @@
 
     const FullScriptView = () => {
       return (
-        <div className="max-w-3xl mx-auto px-4 pt-8 pb-32 text-lg sm:text-xl text-slate-300 leading-relaxed space-y-6 font-serif">
+        <div className="max-w-3xl mx-auto px-4 pt-4 pb-36 text-base sm:text-lg text-slate-300 leading-relaxed space-y-6">
           
-          <div className="text-center mb-12 font-sans border-b border-slate-700 pb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Jehovah's Care for Widows</h1>
-            <h2 className="text-xl text-slate-400">15-Minute Congregation Discourse</h2>
+          <div className="text-center mb-10 border-b border-slate-800 pb-6">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight">Jehovah's Care for Widows</h1>
+            <p className="text-sm sm:text-base text-cyan-400 font-medium tracking-wide">15-Minute Congregation Discourse & Discussion</p>
           </div>
 
           {/* I. INTRODUCTION */}
-          <div id="i1" className="scroll-mt-32">
-            <h3 className="text-2xl font-bold text-cyan-400 font-sans mt-12 mb-4 tracking-wider">I. INTRODUCTION & HOOK (3 min)</h3>
-            <p>If you have ever had the notion to speed read through the Bible—maybe to complete it in less than six months—one of the themes that will immediately pop out at you is Jehovah’s deep concern for widows, orphans, and foreign residents. It really is amazing.</p>
+          <div id="i1" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <h3 className="text-xl font-bold text-cyan-400 mb-3 tracking-wide">I. INTRODUCTION & HOOK (3 min)</h3>
+            <p className="text-slate-200">If you have ever had the notion to speed read through the Bible—maybe to complete it in less than six months—one of the themes that will immediately pop out at you is Jehovah’s deep concern for widows, orphans, and foreign residents. It really is amazing.</p>
           </div>
 
-          <div id="i2" className="scroll-mt-32 pt-4">
-            <p>We see this beautifully summarized for us in <strong>Psalm 68:5</strong>. The <em>New World Translation Study Edition</em> renders it this way:</p>
-            <blockquote className="border-l-4 border-cyan-500 pl-4 my-4 bg-slate-800/50 py-3 pr-3 rounded-r-lg text-slate-200">
-              <strong className="block text-cyan-400 text-base font-sans mb-1">Psalm 68:5</strong>
+          <div id="i2" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <p className="text-slate-200">We see this beautifully summarized for us in <strong>Psalm 68:5</strong>. The <em>New World Translation Study Edition</em> renders it this way:</p>
+            <blockquote className="border-l-4 border-cyan-500 pl-4 my-3 bg-slate-800/60 py-3 pr-4 rounded-r-lg text-slate-100">
+              <strong className="block text-cyan-400 text-sm font-semibold mb-1">Psalm 68:5</strong>
               "A father of the fatherless and a protector of widows is God in his holy dwelling."
             </blockquote>
-            <p>But tonight, rather than just noting how <em>often</em> Jehovah mentions them, we want to slow down and look closely at <em>how</em> He interacts with them.</p>
+            <p className="text-slate-200">But tonight, rather than just noting how <em>often</em> Jehovah mentions them, we want to slow down and look closely at <em>how</em> He interacts with them.</p>
           </div>
 
-          <div id="i3" className="scroll-mt-32 pt-4">
-            <p>To begin tonight’s discussion, I’d like to ask for your thoughts on this question:</p>
-            <div className="bg-cyan-950/40 border border-cyan-800/60 p-4 rounded-xl text-cyan-200 font-sans my-4">
-              <strong>Using the research tools available in your language, find one or two accounts involving widows in the Bible. What do these narratives teach you about how Jehovah views and cares for widows?</strong>
+          <div id="i3" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <p className="text-slate-200">To begin tonight’s discussion, I’d like to ask for your thoughts on this question:</p>
+            <div className="bg-cyan-950/40 border border-cyan-700/60 p-4 rounded-xl text-cyan-100 font-medium my-3">
+              "Using research tools available in your language, find one or two accounts involving widows in the Bible. What do these narratives teach you about how Jehovah views and cares for widows?"
             </div>
-            <p className="text-sm text-slate-400 italic">*(Pause for audience response and field additional comments.)*</p>
+            <p className="text-xs sm:text-sm text-cyan-300 italic">*(Pause for audience response, give a moment for friends to look up notes, and field comments.)*</p>
           </div>
 
           {/* II. BIBLICAL ACCOUNTS */}
-          <div id="a1" className="scroll-mt-32">
-            <h3 className="text-2xl font-bold text-amber-400 font-sans mt-16 mb-4 tracking-wider">II. BIBLICAL ACCOUNTS & SCRIPTURAL INSIGHTS (4 min)</h3>
-            <p><strong>The Widow of Zarephath (1 Kings 17:8-24)</strong></p>
-            <p>During a severe drought, Jehovah directed Elijah to a destitute, foreign widow in Zarephath who was gathering wood to cook her final meal. She showed faith and shared her last morsel, and Jehovah miraculously sustained her flour and oil. Later, when her son died, Jehovah answered Elijah and resurrected the boy.</p>
-            <p className="text-sm text-slate-400 italic mt-2">What this teaches: Jehovah notices the invisible, rewards faith over status, and acts as a fierce protector.</p>
+          <div id="a1" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <h3 className="text-xl font-bold text-amber-400 mb-3 tracking-wide">II. BIBLICAL ACCOUNTS & AUDIENCE SHARING (4 min)</h3>
+            <p className="font-semibold text-white">The Widow of Zarephath (1 Kings 17:8-24)</p>
+            <p className="text-slate-200 mt-1">During a severe drought, Jehovah directed Elijah to a destitute, foreign widow in Zarephath who was gathering sticks to cook her final meal. She showed faith and shared her last morsel, and Jehovah miraculously sustained her jar of flour and jug of oil. Later, when her son died, Jehovah answered Elijah and resurrected the boy.</p>
+            <p className="text-xs sm:text-sm text-amber-300/90 mt-2 font-medium">What this teaches: Jehovah notices the invisible, rewards faith over social standing, and acts as a fierce protector.</p>
           </div>
 
-          <div id="a2" className="scroll-mt-32 pt-4">
-            <p><strong>The Needy Widow at the Temple (Luke 21:1-4; Mark 12:41-44)</strong></p>
-            <p>Jesus observed rich contributors putting in large amounts, but a needy widow dropped in two small coins (leptons)—her whole livelihood. Jesus highlighted her sacrifice, showing how deeply Jehovah values quiet, whole-souled devotion.</p>
+          <div id="a2" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <p className="font-semibold text-white">The Needy Widow at the Temple (Luke 21:1-4; Mark 12:41-44)</p>
+            <p className="text-slate-200 mt-1">Jesus observed rich contributors putting in large gifts, but a needy widow dropped in two small coins (leptons)—her whole livelihood. Jesus highlighted her sacrifice, showing how deeply Jehovah values quiet, whole-souled devotion.</p>
           </div>
 
-          <div id="a3" className="scroll-mt-32 pt-4">
-            <p><strong>The Argument from Lesser to Greater (Luke 18:6-7)</strong></p>
-            <p>Jesus used the illustration of the persistent widow and the unrighteous judge. In the <em>New World Translation</em>, Jesus notes:</p>
-            <blockquote className="border-l-4 border-amber-500 pl-4 my-4 bg-slate-800/50 py-3 pr-3 rounded-r-lg text-slate-200">
-              <strong className="block text-amber-400 text-base font-sans mb-1">Luke 18:6, 7</strong>
-              "Then the Lord said: 'Hear what the judge, although unrighteous, said! Certainly, then, will not God cause justice to be done for his chosen ones who cry out to him day and night, while he is patient toward them?'"
+          <div id="a3" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <p className="font-semibold text-white">The Argument from Lesser to Greater (Luke 18:6-7)</p>
+            <p className="text-slate-200 mt-1">Jesus used the illustration of the persistent widow and the unrighteous judge. In the <em>New World Translation</em> (as found on JW.org), Jesus says:</p>
+            <blockquote className="border-l-4 border-amber-500 pl-4 my-3 bg-slate-800/60 py-3 pr-4 rounded-r-lg text-slate-100">
+              <strong className="block text-amber-400 text-sm font-semibold mb-1">Luke 18:6, 7</strong>
+              "Hear what the judge, although unrighteous, said! Certainly, then, will not God cause justice to be done for his chosen ones who cry out to him day and night, while he is patient toward them?"
             </blockquote>
-            <p>If a corrupt human judge eventually acts, how much more so our loving Heavenly Father who is eager—not reluctant—to act for His people!</p>
+            <p className="text-slate-200">If a corrupt, uncaring human judge eventually acts simply because she refuses to give up, how much more so our loving Heavenly Father who is eager—not reluctant—to act on behalf of His servants!</p>
           </div>
 
           {/* III. WORKBOOK & TRANSITION */}
-          <div id="w1" className="scroll-mt-32">
-            <h3 className="text-2xl font-bold text-emerald-400 font-sans mt-16 mb-4 tracking-wider">III. WORKBOOK COMFORT & VIDEO TRANSITION (2 min)</h3>
-            <p>In our workbook, I think it is beautifully put and it's worth reading it directly:</p>
-            <blockquote className="border-l-4 border-emerald-500 pl-4 my-4 bg-slate-800/50 py-3 pr-3 rounded-r-lg text-slate-200">
+          <div id="w1" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <h3 className="text-xl font-bold text-emerald-400 mb-3 tracking-wide">III. WORKBOOK COMFORT & VIDEO TRANSITION (2 min)</h3>
+            <p className="text-slate-200">In our workbook, I think it is beautifully put and it's worth reading it directly:</p>
+            <blockquote className="border-l-4 border-emerald-500 pl-4 my-3 bg-slate-800/60 py-3 pr-4 rounded-r-lg text-slate-100 text-base sm:text-lg italic">
               "If you are a widow, be assured that Jehovah understands your deepest feelings and needs. He will protect and support you, just as he has done for many in the past and continues to do today."
             </blockquote>
           </div>
 
-          <div id="w2" className="scroll-mt-32 pt-4">
-            <p className="text-xl font-bold text-white text-center my-6">*(Pause for effect)*</p>
-            <p className="text-xl text-center font-bold text-emerald-300">Jehovah really does care for widows.</p>
+          <div id="w2" className="scroll-mt-36 p-4 rounded-xl text-center">
+            <p className="text-sm uppercase tracking-widest text-slate-400 font-semibold mb-2">*(Pause for effect)*</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-emerald-300">Jehovah really does care for widows.</p>
           </div>
 
-          <div id="w3" className="scroll-mt-32 pt-4">
-            <p>In the following video, let's keep two specific thoughts in mind:</p>
-            <p><strong>While we watch the following video, notice how Jehovah cares for widows today, and think about how we as individuals and as a congregation can show honor to widows today.</strong></p>
-            <p className="text-sm text-slate-400 italic mt-2">*(Play Video)*</p>
+          <div id="w3" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <p className="text-slate-200">In the following video, let's keep two specific thoughts in mind:</p>
+            <div className="bg-emerald-950/40 border border-emerald-700/60 p-4 rounded-xl text-emerald-100 font-medium my-3">
+              "While we watch the following video, notice how Jehovah cares for widows today, and think about how we as individuals and as a congregation can show honor to widows today."
+            </div>
+            <p className="text-xs sm:text-sm text-emerald-400 italic">*(Play the video segment)*</p>
           </div>
 
           {/* IV. DISCUSSION */}
-          <div id="d1" className="scroll-mt-32">
-            <h3 className="text-2xl font-bold text-violet-400 font-sans mt-16 mb-4 tracking-wider">IV. POST-VIDEO DISCUSSION (4 min)</h3>
-            <p>Thank you for those wonderful observations. Let's look at our assigned questions:</p>
-            <div className="bg-violet-950/40 border border-violet-800/60 p-4 rounded-xl text-violet-200 font-sans my-4 space-y-3">
+          <div id="d1" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <h3 className="text-xl font-bold text-violet-400 mb-3 tracking-wide">IV. POST-VIDEO DISCUSSION (4 min)</h3>
+            <p className="text-slate-200">Thank you for your close attention. Let us examine the assigned questions:</p>
+            <div className="bg-violet-950/40 border border-violet-700/60 p-4 rounded-xl text-violet-100 font-medium my-3 space-y-3">
               <p><strong>1. What did you learn from this video about how Jehovah cares for widows today?</strong></p>
-              <p><strong>2. Showing honor and support to widows is an important aspect of our worship. (Jas 1:27; “Give consideration to” study note on 1Ti 5:3, nwtsty). How can we show honor to widows today?</strong></p>
+              <p><strong>2. Showing honor and support to widows is an important aspect of our worship. (Jas 1:27; "Give consideration to" study note on 1Ti 5:3, nwtsty). How can we show honor to widows today?</strong></p>
             </div>
-            <p className="text-sm text-slate-400 italic">*(Invite audience comments on practical acts of support and spiritual encouragement.)*</p>
+            <p className="text-xs sm:text-sm text-violet-300 italic">*(Invite audience participation on practical ways the congregation provides physical assistance, emotional presence, and inclusion.)*</p>
           </div>
 
           {/* V. CONCLUSION */}
-          <div id="c1" className="scroll-mt-32">
-            <h3 className="text-2xl font-bold text-rose-400 font-sans mt-16 mb-4 tracking-wider">V. CONCLUSION (2 min)</h3>
-            <p>Thank you all for those beautiful comments. From the widow in Zarephath to the widow at the temple, and to our dear sisters today, Psalm 68:5 remains true: God is a protector of widows.</p>
+          <div id="c1" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <h3 className="text-xl font-bold text-rose-400 mb-3 tracking-wide">V. CONCLUSION (2 min)</h3>
+            <p className="text-slate-200">Thank you all for those heartfelt comments. From the widow in Zarephath to the widow at the temple, and to our dear sisters today, Psalm 68:5 remains true: God is a protector of widows.</p>
           </div>
 
-          <div id="c2" className="scroll-mt-32 pt-4">
-            <p>And the beautiful privilege we have is that He often uses <em>us</em> to provide that protection and care. When we offer our time, our emotional support, and our deep respect to these faithful sisters, we are doing more than just being good friends. We are actively reflecting the heart of our Heavenly Father.</p>
-            <p>Let’s all continue to look for ways to be His hands in showing that love—proving by our actions that Jehovah really does care for widows.</p>
+          <div id="c2" className="scroll-mt-36 p-4 rounded-xl transition-colors">
+            <p className="text-slate-200">And the beautiful privilege we have is that He often uses <em>us</em> to provide that protection and care. When we offer our time, our emotional support, and our deep respect to these faithful sisters, we are doing more than just being good friends. We are actively reflecting the heart of our Heavenly Father.</p>
+            <p className="text-slate-200 mt-3 font-semibold text-white">Let’s all continue to look for ways to be His hands in showing that love—proving by our actions that Jehovah really does care for widows.</p>
           </div>
 
         </div>
@@ -371,74 +531,74 @@
     };
 
     const App = () => {
-      const [viewMode, setViewMode] = useState('mindmap'); // 'mindmap' | 'script'
+      const [viewMode, setViewMode] = useState('mindmap');
 
       const handleJumpToScript = (sectionId) => {
         setViewMode('script');
         setTimeout(() => {
           const el = document.getElementById(sectionId);
           if (el) {
-            const y = el.getBoundingClientRect().top + window.scrollY - 100;
+            const y = el.getBoundingClientRect().top + window.scrollY - 110;
             window.scrollTo({ top: y, behavior: 'smooth' });
-            el.classList.add('bg-slate-800', 'transition-colors', 'duration-500', 'rounded-xl', 'p-2');
-            setTimeout(() => el.classList.remove('bg-slate-800'), 1500);
+            el.classList.add('bg-slate-800', 'ring-2', 'ring-cyan-400');
+            setTimeout(() => {
+              el.classList.remove('bg-slate-800', 'ring-2', 'ring-cyan-400');
+            }, 1800);
           }
-        }, 100);
+        }, 120);
       };
 
       return (
-        <div className="relative min-h-screen">
-          
-          {/* Top Bar (Timer + Toggle) */}
-          <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-2 sm:px-6 py-3 flex justify-between items-center shadow-xl">
+        <div className="relative min-h-screen bg-slate-900 text-slate-100">
+          {/* Top Fixed Header with Timer and View Switcher */}
+          <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 sm:px-6 py-2.5 flex justify-between items-center shadow-2xl">
             <PresentationTimer />
 
-            <div className="bg-slate-800 border border-slate-700 p-1 rounded-full flex shadow-inner">
+            <div className="bg-slate-800/90 border border-slate-700 p-1 rounded-full flex shadow-inner">
               <button 
-                onClick={() => { window.scrollTo({top:0}); setViewMode('mindmap'); }} 
-                className={`px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm flex items-center transition-colors ${viewMode === 'mindmap' ? 'bg-slate-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+                onClick={() => { window.scrollTo({top: 0}); setViewMode('mindmap'); }} 
+                className={`px-3.5 sm:px-5 py-1.5 rounded-full font-bold text-xs sm:text-sm flex items-center transition-all ${
+                  viewMode === 'mindmap' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                }`}
               >
-                <Network className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Mind Map</span>
+                <Network className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Mind Map</span>
               </button>
               <button 
-                onClick={() => { window.scrollTo({top:0}); setViewMode('script'); }} 
-                className={`px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm flex items-center transition-colors ${viewMode === 'script' ? 'bg-slate-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+                onClick={() => { window.scrollTo({top: 0}); setViewMode('script'); }} 
+                className={`px-3.5 sm:px-5 py-1.5 rounded-full font-bold text-xs sm:text-sm flex items-center transition-all ${
+                  viewMode === 'script' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                }`}
               >
-                <FileText className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Script</span>
+                <FileText className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Script</span>
               </button>
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="pt-28">
+          {/* Main View Container */}
+          <div className="pt-24 sm:pt-28">
             {viewMode === 'mindmap' ? (
-              <div className="max-w-4xl mx-auto px-4 pb-40 sm:px-8">
-                
-                {/* Header */}
-                <div className="text-center mb-16 space-y-4">
-                  <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+              <div className="max-w-4xl mx-auto px-4 pb-36 sm:px-8">
+                <div className="text-center mb-12 space-y-2">
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
                     Jehovah's Care for Widows
                   </h1>
-                  <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto">
-                    15-Minute Congregation Discourse. Tap a bubble to view notes. <br/> <strong className="text-slate-300">Press & Hold to jump to the script.</strong>
+                  <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+                    15-Minute Congregation Discourse. Tap a bubble to expand rehearsal notes. <br/>
+                    <span className="text-cyan-300 font-medium">Press &amp; Hold any bubble to jump straight to the script.</span>
                   </p>
                 </div>
 
-                {/* Talk Sections */}
-                <div className="space-y-16">
+                <div className="space-y-12">
                   {outlineData.map((section) => (
                     <div key={section.id} className="relative">
-                      
-                      {/* Section Header */}
-                      <div className="flex justify-center mb-8 sticky top-28 z-20">
-                        <div className={`bg-gradient-to-r ${section.themeColor} text-white font-black text-lg sm:text-xl px-6 py-3 rounded-2xl shadow-xl uppercase tracking-wider flex items-center justify-center gap-3 w-full sm:w-auto`}>
-                           <BookOpen className="w-6 h-6 opacity-90 flex-shrink-0" />
+                      <div className="flex justify-center mb-6 sticky top-20 sm:top-24 z-20">
+                        <div className={`bg-gradient-to-r ${section.themeColor} text-white font-extrabold text-sm sm:text-base px-5 py-2.5 rounded-2xl shadow-xl uppercase tracking-wider flex items-center justify-center gap-2.5 w-full sm:w-auto`}>
+                          <BookOpen className="w-5 h-5 opacity-90 flex-shrink-0" />
                           <span>{section.sectionTitle}</span>
                         </div>
                       </div>
 
-                      {/* Bubbles */}
-                      <div className="flex flex-col items-center space-y-6">
+                      <div className="flex flex-col items-center space-y-3">
                         {section.cards.map((card) => (
                           <FlashcardBubble 
                             key={card.id}
@@ -450,7 +610,6 @@
                           />
                         ))}
                       </div>
-                      
                     </div>
                   ))}
                 </div>
@@ -463,7 +622,8 @@
       );
     };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
     root.render(<App />);
   </script>
 </body>
